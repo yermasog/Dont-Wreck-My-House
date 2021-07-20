@@ -6,6 +6,11 @@ import java.util.List;
 
 public class ReservationFileRepository implements ReservationRepository{
 
+    private final String directory;
+
+    public ReservationFileRepository(String directory) {
+        this.directory = directory;
+    }
 
     @Override
     public List<Reservation> findByEmail(String email) {
