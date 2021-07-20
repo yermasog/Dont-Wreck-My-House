@@ -53,4 +53,45 @@ public class Host {
     public BigDecimal getWeekendRate() {
         return weekendRate;
     }
+
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public void setPostalCode(int postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public void setStandardRate(BigDecimal standardRate) {
+        this.standardRate = standardRate;
+    }
+
+    public void setWeekendRate(BigDecimal weekendRate) {
+        this.weekendRate = weekendRate;
+    }
 }
