@@ -9,7 +9,7 @@ import java.util.List;
 public interface ReservationRepository {
     List<Reservation> findResByHostEmail(String email);
 
-    Reservation add(Reservation res) throws FileNotFoundException;
+    Reservation add(Reservation res, String email) throws FileNotFoundException;
 
     boolean edit(Reservation res);
 

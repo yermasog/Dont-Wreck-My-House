@@ -163,19 +163,20 @@ public class ReservationFileRepository implements ReservationRepository {
 
 
     @Override
-    public Reservation add(Reservation res) throws FileNotFoundException {
-        List<Reservation> all = findResByHostEmail(res.getHost().getEmail());
-        String hostId = res.getHost().getId();
+    public Reservation add(Reservation res, String email) throws FileNotFoundException {
+        List<Reservation> all = findResByHostEmail(email);
+        Host host = matchHostEmailToId(email);
+        String hostId = host.getId();
         res.setId(all.size() + 1);
         all.add(res);
         try (PrintWriter writer = new PrintWriter(directory +"/" + hostId + ".csv")) {
             writer.println(HEADER);
-            all.stream().map(reservation -> String.format("%s,%s,%s,%s,%s",
-                    res.getId(),
-                    res.getStartDate(),
-                    res.getEndDate(),
-                    res.getGuest().getId(),
-                    res.getTotal()))
+            all.stream().map(a -> String.format("%s,%s,%s,%s,%s",
+                    a.getId(),
+                    a.getStartDate(),
+                    a.getEndDate(),
+                    a.getGuest().getId(),
+                    a.getTotal()))
                     .forEach(writer::println);
 
         }

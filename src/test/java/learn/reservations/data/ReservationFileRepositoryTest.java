@@ -1,14 +1,18 @@
 package learn.reservations.data;
 
+import learn.reservations.models.Guest;
 import learn.reservations.models.Reservation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +34,29 @@ class ReservationFileRepositoryTest {
 
 
     @Test
-    void add() {
+    void shouldAdd() throws FileNotFoundException {
+        String email = "kdeclerkdc@sitemeter.com";
+
+        Guest guest = new Guest();
+        guest.setId(1);
+        guest.setFirstName("Sullivan");
+        guest.setLastName("Lomas");
+        guest.setEmail("slomas0@mediafire.com");
+        guest.setPhone("(702) 7768761");
+        guest.setState("NV");
+
+        Reservation res = new Reservation();
+        res.setId(13);
+        res.setStartDate(LocalDate.of(2021,11,01));
+        res.setEndDate(LocalDate.of(2021,11,5));
+        res.setGuest(guest);
+        res.setTotal(new BigDecimal("1100"));
+
+        res = repository.add(res, email);
+
+        assertNotNull(res);
+        //findAll and compare the last id with the new id
+
     }
 
     @Test
