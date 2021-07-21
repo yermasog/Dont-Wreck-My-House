@@ -108,8 +108,6 @@ class ReservationServiceTest {
         assertEquals("End date is required.", actual.getMessages().get(0));
     }
 
-
-    //new Reservation(2, LocalDate.of(2021,9,20),LocalDate.of(2021,10,2), guest2, host, new BigDecimal("550"))
     @Test
     void shouldNotAddOverlap() throws DataAccessException {
         Reservation res = new Reservation(3, LocalDate.of(2021,9,21),
@@ -123,5 +121,14 @@ class ReservationServiceTest {
         assertEquals("Cannot add overlapping reservation.", actual.getMessages().get(0));
     }
 
+    @Test
+    void shouldEdit() throws DataAccessException {
+        Reservation res = new Reservation(3, LocalDate.of(2021,11,20),
+                LocalDate.of(2021,12,2), guest, host, new BigDecimal("450"));
 
+        Result actual = service.editRes(res);
+        assertTrue(actual.isSuccess());
+        assertEquals(0, actual.getMessages().size());
+
+    }
 }

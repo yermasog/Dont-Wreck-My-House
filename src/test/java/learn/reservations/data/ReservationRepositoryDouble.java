@@ -32,7 +32,8 @@ public class ReservationRepositoryDouble implements ReservationRepository{
 
     @Override
     public boolean edit(Reservation res) throws DataAccessException {
-        return false;
+
+        return res.getId() == 3;
     }
 
     @Override

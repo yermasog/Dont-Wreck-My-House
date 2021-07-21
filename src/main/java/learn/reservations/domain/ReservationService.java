@@ -41,6 +41,20 @@ public class ReservationService {
         return result;
     }
 
+    public Result editRes(Reservation res) throws DataAccessException {
+        Result result = validate(res);
+        if (!result.isSuccess()) {
+            return result;
+        }
+        if(reservationRepository.edit(res)){
+            result.setReservation(res);
+        } else {
+            result.addMessage("Could not find a matching reservation.");
+        }
+
+        return result;
+    }
+
     private Result validate(Reservation res) throws DataAccessException {
 
         Result result = new Result();
@@ -106,14 +120,14 @@ public class ReservationService {
         List<Reservation> all = findByEmail(res.getHost().getEmail());
 
         for(Reservation r : all) {
-            if(res.getStartDate().isAfter(r.getEndDate())
-                    || res.getStartDate().isEqual(r.getEndDate())
-            || res.getEndDate().isBefore(r.getStartDate()) ||
-                    res.getEndDate().isEqual(r.getStartDate())) {
+            if(!(res.getStartDate().isAfter(r.getEndDate())
+                    || res.getStartDate().isEqual(r.getEndDate()))
 
+            && !(res.getEndDate().isBefore(r.getStartDate()) ||
+                    res.getEndDate().isEqual(r.getStartDate()))) {
+                result.addMessage("Cannot add overlapping reservation.");
             }
         }
-        result.addMessage("Cannot add overlapping reservation.");
 
     }
 
