@@ -163,12 +163,17 @@ public class ReservationFileRepository implements ReservationRepository {
 
 
     @Override
-    public Reservation add(Reservation res, String email) throws FileNotFoundException {
-        List<Reservation> all = findResByHostEmail(email);
-        Host host = matchHostEmailToId(email);
-        String hostId = host.getId();
+    public Reservation add(Reservation res) throws FileNotFoundException {
+        List<Reservation> all = findResByHostEmail(res.getHost().getEmail());
+        String hostId = res.getHost().getId();
         res.setId(all.size() + 1);
         all.add(res);
+        writeToFile(all, hostId);
+
+        return res;
+    }
+
+    private void writeToFile(List<Reservation> all, String hostId) throws FileNotFoundException {
         try (PrintWriter writer = new PrintWriter(directory +"/" + hostId + ".csv")) {
             writer.println(HEADER);
             all.stream().map(a -> String.format("%s,%s,%s,%s,%s",
@@ -178,14 +183,19 @@ public class ReservationFileRepository implements ReservationRepository {
                     a.getGuest().getId(),
                     a.getTotal()))
                     .forEach(writer::println);
-
         }
-
-        return res;
     }
 
     @Override
-    public boolean edit(Reservation res) {
+    public boolean edit(Reservation res) throws FileNotFoundException {
+    List<Reservation> all = findResByHostEmail(res.getHost().getEmail());
+        for (int i = 0; i < all.size(); i++) {
+            if(all.get(i).getId() == res.getId()) {
+                all.set(i, res);
+                writeToFile(all, res.getHost().getId());
+                return true;
+            }
+        }
         return false;
     }
 

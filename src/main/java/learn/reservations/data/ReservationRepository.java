@@ -9,9 +9,9 @@ import java.util.List;
 public interface ReservationRepository {
     List<Reservation> findResByHostEmail(String email);
 
-    Reservation add(Reservation res, String email) throws FileNotFoundException;
+    Reservation add(Reservation res) throws FileNotFoundException;
 
-    boolean edit(Reservation res);
+    boolean edit(Reservation res) throws FileNotFoundException;
 
     boolean cancel(Reservation res);
 }

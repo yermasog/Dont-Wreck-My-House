@@ -1,6 +1,7 @@
 package learn.reservations.data;
 
 import learn.reservations.models.Guest;
+import learn.reservations.models.Host;
 import learn.reservations.models.Reservation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,9 @@ class ReservationFileRepositoryTest {
 
     ReservationFileRepository repository = new ReservationFileRepository(TEST_DIR_PATH);
 
+    Guest guest = new Guest(1, "Sullivan","Lomas","slomas0@mediafire.com","(702) 7768761","NV");
+    Host host = new Host("2e72f86c-b8fe-4265-b4f1-304dea8762db","de Clerk","kdeclerkdc@sitemeter.com","(208) 9496329","2 Debra Way", "Boise", "ID", 83757, new BigDecimal("200"), new BigDecimal("250"));
+
     @BeforeEach
     void setup() throws IOException {
         Path seedPath = Paths.get(SEED_FILE_PATH);
@@ -32,27 +36,17 @@ class ReservationFileRepositoryTest {
         Files.copy(seedPath, testPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
-
     @Test
     void shouldAdd() throws FileNotFoundException {
-        String email = "kdeclerkdc@sitemeter.com";
-
-        Guest guest = new Guest();
-        guest.setId(1);
-        guest.setFirstName("Sullivan");
-        guest.setLastName("Lomas");
-        guest.setEmail("slomas0@mediafire.com");
-        guest.setPhone("(702) 7768761");
-        guest.setState("NV");
-
         Reservation res = new Reservation();
         res.setId(13);
         res.setStartDate(LocalDate.of(2021,11,01));
         res.setEndDate(LocalDate.of(2021,11,5));
         res.setGuest(guest);
+        res.setHost(host);
         res.setTotal(new BigDecimal("1100"));
 
-        res = repository.add(res, email);
+        res = repository.add(res);
 
         assertNotNull(res);
         //findAll and compare the last id with the new id
