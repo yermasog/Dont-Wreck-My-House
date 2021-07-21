@@ -81,7 +81,14 @@ class ReservationFileRepositoryTest {
     }
 
     @Test
-    void cancel() {
+    void cancel() throws FileNotFoundException {
+        assertTrue(repository.cancel(res));
+
+        List<Reservation> all = repository.findResByHostEmail(host.getEmail());
+        assertEquals(11, all.size());
+
+        assertFalse(all.stream()
+                .anyMatch(a -> a.getId() == res.getId()));
     }
 
     @Test

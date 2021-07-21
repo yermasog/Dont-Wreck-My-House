@@ -13,5 +13,5 @@ public interface ReservationRepository {
 
     boolean edit(Reservation res) throws FileNotFoundException;
 
-    boolean cancel(Reservation res);
+    boolean cancel(Reservation res) throws FileNotFoundException;
 }

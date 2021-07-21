@@ -200,7 +200,15 @@ public class ReservationFileRepository implements ReservationRepository {
     }
 
     @Override
-    public boolean cancel(Reservation res) {
+    public boolean cancel(Reservation res) throws FileNotFoundException {
+        List<Reservation> all = findResByHostEmail(res.getHost().getEmail());
+        for (int i = 0; i < all.size(); i++) {
+            if (all.get(i).getId() == res.getId()) {
+                all.remove(i);
+                writeToFile(all,res.getHost().getId());
+                return true;
+            }
+        }
         return false;
     }
 
