@@ -55,6 +55,14 @@ public class ReservationService {
         return result;
     }
 
+    public Result cancelRes(Reservation res) throws DataAccessException {
+        Result result = new Result();
+        if (!reservationRepository.cancel(res)) {
+            result.addMessage("Reservation was not found");
+        }
+        return result;
+    }
+
     private Result validate(Reservation res) throws DataAccessException {
 
         Result result = new Result();
