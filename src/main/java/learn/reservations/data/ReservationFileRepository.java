@@ -4,10 +4,7 @@ import learn.reservations.models.Guest;
 import learn.reservations.models.Host;
 import learn.reservations.models.Reservation;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,6 +13,7 @@ import java.util.stream.Stream;
 
 public class ReservationFileRepository implements ReservationRepository {
 
+    private static final String HEADER = "id,start_date,end_date,guest_id,total";
     private final String directory;
 
     public ReservationFileRepository(String directory) {
@@ -127,7 +125,7 @@ public class ReservationFileRepository implements ReservationRepository {
         return host;
     }
 
-
+@Override
     public List<Reservation> findResByHostEmail(String email) {
         Host host = matchHostEmailToId(email);
         String hostId = host.getId();
@@ -164,18 +162,25 @@ public class ReservationFileRepository implements ReservationRepository {
     }
 
 
-    public LocalDate readDateString(String dateString) {
-        String fields[] = dateString.split("-", 3);
-        int year = Integer.parseInt(fields[0]);
-        int month = Integer.parseInt(fields[1]);
-        int day = Integer.parseInt(fields[2]);
-        LocalDate date = LocalDate.of(year, month, day);
-        return date;
-    }
-
     @Override
-    public Reservation add(Reservation res) {
-        return null;
+    public Reservation add(Reservation res) throws FileNotFoundException {
+        List<Reservation> all = findResByHostEmail(res.getHost().getEmail());
+        String hostId = res.getHost().getId();
+        res.setId(all.size() + 1);
+        all.add(res);
+        try (PrintWriter writer = new PrintWriter(directory +"/" + hostId + ".csv")) {
+            writer.println(HEADER);
+            all.stream().map(reservation -> String.format("%s,%s,%s,%s,%s",
+                    res.getId(),
+                    res.getStartDate(),
+                    res.getEndDate(),
+                    res.getGuest().getId(),
+                    res.getTotal()))
+                    .forEach(writer::println);
+
+        }
+
+        return res;
     }
 
     @Override
@@ -187,4 +192,15 @@ public class ReservationFileRepository implements ReservationRepository {
     public boolean cancel(Reservation res) {
         return false;
     }
+
+    private LocalDate readDateString(String dateString) {
+        String fields[] = dateString.split("-", 3);
+        int year = Integer.parseInt(fields[0]);
+        int month = Integer.parseInt(fields[1]);
+        int day = Integer.parseInt(fields[2]);
+        LocalDate date = LocalDate.of(year, month, day);
+        return date;
+    }
+
+
 }
