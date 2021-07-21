@@ -60,11 +60,12 @@ public class ReservationService {
             return result;
         }
 
-        if(validateOverlapping(res, result)){
+        validateOverlapping(res, result);
+        if(!result.isSuccess()){
             return result;
         }
 
-        return null;
+        return result;
     }
 
     private void validateNulls(Reservation res, Result result) {
@@ -101,7 +102,7 @@ public class ReservationService {
 
     }
 
-    private boolean validateOverlapping(Reservation res, Result result) throws DataAccessException {
+    private void validateOverlapping(Reservation res, Result result) throws DataAccessException {
         List<Reservation> all = findByEmail(res.getHost().getEmail());
 
         for(Reservation r : all) {
@@ -109,11 +110,11 @@ public class ReservationService {
                     || res.getStartDate().isEqual(r.getEndDate())
             || res.getEndDate().isBefore(r.getStartDate()) ||
                     res.getEndDate().isEqual(r.getStartDate())) {
-                return false;
+
             }
         }
         result.addMessage("Cannot add overlapping reservation.");
-        return true;
+
     }
 
 }
