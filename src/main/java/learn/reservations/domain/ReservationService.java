@@ -68,6 +68,9 @@ public class ReservationService {
     }
 
     private void validateNulls(Reservation res, Result result) {
+        if(res == null){
+            result.addMessage("Reservation is required.");
+        }
         if (res.getHost().getId() == null) {
             result.addMessage("Host Id is required.");
         }

@@ -19,6 +19,8 @@ class ReservationServiceTest {
     GuestRepository guestRepository;
     ReservationService service = new ReservationService(reservationRepository,hostRepository,guestRepository);
 
+
+
     Host host = new Host("2e72f86c-b8fe-4265-b4f1-304dea8762db","de Clerk","kdeclerkdc@sitemeter.com","(208) 9496329","2 Debra Way", "Boise", "ID", 83757, new BigDecimal("200"), new BigDecimal("250"));
     Guest guest = new Guest(799, "Goldy", "Bowland", "gbowlandm6@devhub.com", "(510) 1381796", "CA");
 
@@ -30,10 +32,57 @@ class ReservationServiceTest {
 
     }
 
+    @Test
     void shouldAdd() throws DataAccessException {
-        Reservation res = new Reservation(5, LocalDate.of(2021,7,31),LocalDate.of(2021,8,2), guest, host, new BigDecimal("450"));
+        Reservation res = new Reservation(3, LocalDate.of(2021,11,20),
+                LocalDate.of(2021,12,2), guest, host, new BigDecimal("450"));
 
-        reservationRepository.add(res);
+        Result result = service.addRes(res);
+        assertTrue(result.isSuccess());
+        assertNotNull(result.getRes());
+        assertEquals(0, result.getMessages().size());
     }
+
+    @Test
+    void shouldNotAddNullRes() throws DataAccessException {
+        Result actual = service.addRes(null);
+
+        assertFalse(actual.isSuccess());
+        assertNull(actual.getRes());
+        assertEquals(1, actual.getMessages().size());
+        assertEquals("Reservation is required.", actual.getMessages().get(0));
+    }
+
+    @Test
+    void shouldNotAddResNullHost() throws DataAccessException {
+        Host nullHost = new Host();
+        Reservation res = new Reservation(3, LocalDate.of(2021,11,20),
+                LocalDate.of(2021,12,2), guest, nullHost, new BigDecimal("450"));
+
+        Result actual = service.addRes(res);
+
+        assertFalse(actual.isSuccess());
+        assertNull(actual.getRes());
+        assertEquals(1, actual.getMessages().size());
+        assertEquals("Host Id is required.", actual.getMessages().get(0));
+    }
+
+    @Test
+    void shouldNotAddResNullGuest() throws DataAccessException {
+        Guest nullGuest = new Guest();
+        Reservation res = new Reservation(3, LocalDate.of(2021,11,20),
+                LocalDate.of(2021,12,2), nullGuest, host, new BigDecimal("450"));
+
+        Result actual = service.addRes(res);
+
+        assertFalse(actual.isSuccess());
+        assertNull(actual.getRes());
+        assertEquals(1, actual.getMessages().size());
+        assertEquals("Guest Id is required.", actual.getMessages().get(0));
+
+    }
+
+    @Test
+    void
 
 }
