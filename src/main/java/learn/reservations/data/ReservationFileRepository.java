@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class ReservationFileRepository implements ReservationRepository {
 
@@ -20,114 +19,8 @@ public class ReservationFileRepository implements ReservationRepository {
         this.directory = directory;
     }
 
-    public List<Host> findAllHosts() {
-        ArrayList<Host> allHosts = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader("./data/hosts.csv"))) {
-            reader.readLine();
-            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                String[] fields = line.split(",", -1);
-                String id = fields[0];
-                String lastName = fields[1];
-                String email = fields[2];
-                String phone = fields[3];
-                String address = fields[4];
-                String city = fields[5];
-                String state = fields[6];
-                int postalCode = Integer.parseInt(fields[7]);
-                BigDecimal standardRate = new BigDecimal(fields[8]);
-                BigDecimal weekendRate = new BigDecimal(fields[9]);
-
-                Host host = new Host();
-                host.setId(id);
-                host.setLastName(lastName);
-                host.setEmail(email);
-                host.setPhone(phone);
-                host.setAddress(address);
-                host.setCity(city);
-                host.setState(state);
-                host.setPostalCode(postalCode);
-                host.setStandardRate(standardRate);
-                host.setWeekendRate(weekendRate);
-
-                allHosts.add(host);
-            }
-
-        } catch (FileNotFoundException exception) {
-            exception.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return allHosts;
-    }
-
-    public List<Guest> findAllGuests() throws FileNotFoundException {
-        ArrayList<Guest> allGuests = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader("./data/guests.csv"))) {
-            reader.readLine();
-            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                String[] fields = line.split(",", -1);
-                int id = Integer.parseInt(fields[0]);
-                String firstName = fields[1];
-                String lastName = fields[2];
-                String email = fields[3];
-                String phone = fields[4];
-                String state = fields[5];
-
-                Guest guest = new Guest();
-                guest.setId(id);
-                guest.setFirstName(firstName);
-                guest.setLastName(lastName);
-                guest.setEmail(email);
-                guest.setPhone(phone);
-                guest.setState(state);
-
-                allGuests.add(guest);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return allGuests;
-    }
-
-    public Guest matchGuestId(int id) throws FileNotFoundException {
-        List<Guest> all = findAllGuests();
-        Guest guest = new Guest();
-        for (int i = 0; i < all.size(); i++) {
-            if (all.get(i).getId() == id) {
-                guest.setId(all.get(i).getId());
-                guest.setFirstName(all.get(i).getFirstName());
-                guest.setLastName(all.get(i).getLastName());
-                guest.setEmail(all.get(i).getEmail());
-                guest.setPhone(all.get(i).getPhone());
-                guest.setState(all.get(i).getState());
-            }
-        }
-        return guest;
-    }
-
-    public Host matchHostEmailToId(String email) {
-        List<Host> all = findAllHosts();
-        Host host = new Host();
-        for (int i = 0; i < all.size(); i++) {
-            if (all.get(i).getEmail().equalsIgnoreCase(email)) {
-                host.setId(all.get(i).getId());
-                host.setLastName(all.get(i).getLastName());
-                host.setEmail(all.get(i).getEmail());
-                host.setPhone(all.get(i).getPhone());
-                host.setAddress(all.get(i).getAddress());
-                host.setCity(all.get(i).getCity());
-                host.setState(all.get(i).getState());
-                host.setPostalCode(all.get(i).getPostalCode());
-                host.setStandardRate(all.get(i).getStandardRate());
-                host.setWeekendRate(all.get(i).getWeekendRate());
-            }
-        }
-        return host;
-    }
-
-@Override
-    public List<Reservation> findResByHostEmail(String email) {
-        Host host = matchHostEmailToId(email);
+    @Override
+    public List<Reservation> findResByHostEmail(Host host, Guest guest) throws DataAccessException {
         String hostId = host.getId();
 
         ArrayList<Reservation> reservations = new ArrayList<>();
@@ -142,7 +35,6 @@ public class ReservationFileRepository implements ReservationRepository {
                 int guestId = Integer.parseInt(fields[3]);
                 BigDecimal total = new BigDecimal(fields[4]);
 
-                Guest guest = matchGuestId(guestId);
 
                 Reservation reservation = new Reservation();
                 reservation.setId(id);
@@ -155,25 +47,25 @@ public class ReservationFileRepository implements ReservationRepository {
                 reservations.add(reservation);
             }
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            throw new DataAccessException("Cannot access file");
         }
         return reservations;
     }
 
 
     @Override
-    public Reservation add(Reservation res) throws FileNotFoundException {
-        List<Reservation> all = findResByHostEmail(res.getHost().getEmail());
+    public Reservation add(Reservation res) throws DataAccessException {
+        List<Reservation> all = findResByHostEmail(res.getHost(), res.getGuest());
         String hostId = res.getHost().getId();
-        res.setId(all.size() + 1);
+        res.setId(all.size() + 1); //what happens when reservation is canceled? get maxId
         all.add(res);
         writeToFile(all, hostId);
 
         return res;
     }
 
-    private void writeToFile(List<Reservation> all, String hostId) throws FileNotFoundException {
+    private void writeToFile(List<Reservation> all, String hostId) throws DataAccessException {
         try (PrintWriter writer = new PrintWriter(directory +"/" + hostId + ".csv")) {
             writer.println(HEADER);
             all.stream().map(a -> String.format("%s,%s,%s,%s,%s",
@@ -183,12 +75,14 @@ public class ReservationFileRepository implements ReservationRepository {
                     a.getGuest().getId(),
                     a.getTotal()))
                     .forEach(writer::println);
+        } catch (IOException ex) {
+            throw new DataAccessException("Could not write to file");
         }
     }
 
     @Override
-    public boolean edit(Reservation res) throws FileNotFoundException {
-    List<Reservation> all = findResByHostEmail(res.getHost().getEmail());
+    public boolean edit(Reservation res) throws DataAccessException {
+    List<Reservation> all = findResByHostEmail(res.getHost(), res.getGuest());
         for (int i = 0; i < all.size(); i++) {
             if(all.get(i).getId() == res.getId()) {
                 all.set(i, res);
@@ -200,8 +94,8 @@ public class ReservationFileRepository implements ReservationRepository {
     }
 
     @Override
-    public boolean cancel(Reservation res) throws FileNotFoundException {
-        List<Reservation> all = findResByHostEmail(res.getHost().getEmail());
+    public boolean cancel(Reservation res) throws DataAccessException {
+        List<Reservation> all = findResByHostEmail(res.getHost(), res.getGuest());
         for (int i = 0; i < all.size(); i++) {
             if (all.get(i).getId() == res.getId()) {
                 all.remove(i);
@@ -212,13 +106,12 @@ public class ReservationFileRepository implements ReservationRepository {
         return false;
     }
 
-    private LocalDate readDateString(String dateString) {
-        String fields[] = dateString.split("-", 3);
+    private LocalDate readDateString(String dateString) { //TODO create LocalDate from string
+        String[] fields = dateString.split("-", 3);
         int year = Integer.parseInt(fields[0]);
         int month = Integer.parseInt(fields[1]);
         int day = Integer.parseInt(fields[2]);
-        LocalDate date = LocalDate.of(year, month, day);
-        return date;
+        return LocalDate.of(year, month, day);
     }
 
 
