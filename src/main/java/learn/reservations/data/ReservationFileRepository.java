@@ -59,7 +59,7 @@ public class ReservationFileRepository implements ReservationRepository {
     public Reservation add(Reservation res) throws DataAccessException {
         List<Reservation> all = findResByHostEmail(res.getHost());
         String hostId = res.getHost().getId();
-        res.setId(all.size() + 1); //what happens when reservation is canceled? get maxId
+        res.setId(getMaxId(all));
         all.add(res);
         writeToFile(all, hostId);
 
@@ -113,6 +113,16 @@ public class ReservationFileRepository implements ReservationRepository {
         int month = Integer.parseInt(fields[1]);
         int day = Integer.parseInt(fields[2]);
         return LocalDate.of(year, month, day);
+    }
+
+    private int getMaxId(List<Reservation> all) {
+        int maxId = 0;
+        for(Reservation r : all) {
+            if (r.getId() > maxId) {
+                maxId = r.getId();
+            }
+        }
+        return maxId + 1;
     }
 
 

@@ -23,10 +23,19 @@ public class ReservationService {
         this.guestRepository = guestRepository;
     }
 
+
     public List<Reservation> findByEmail(String email) throws DataAccessException {
         Host host = hostRepository.matchHostEmailToId(email);
         List<Reservation> reservations = reservationRepository.findResByHostEmail(host);
 
         return reservations;
     }
+
+    public Reservation addRes(Reservation res) {
+
+
+
+        return null;
+    }
+
 }
