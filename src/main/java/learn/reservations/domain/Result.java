@@ -6,27 +6,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Result {
-    private final ArrayList<String> messages = new ArrayList<>();
-    private Reservation res;
 
-    public boolean isSuccess() {
-        return messages.size() == 0;
-    }
+        private final ArrayList<String> messages = new ArrayList<>();
+        private Reservation res;
 
-    public List<String> getMessages() {
-        return new ArrayList<>(messages);
-    }
+        public boolean isSuccess() {
+            return messages.size() == 0;
+        }
 
-    public void addMessage(String message) {
-        messages.add(message);
-    }
+        public List<String> getMessages() {
+            return new ArrayList<>(messages);
+        }
 
-  public void setReservation(Reservation res) {
-        this.res = res;
-  }
+        public void addMessage(String message) {
+            messages.add(message);
+        }
 
-  public Reservation getRes() {
-        return res;
-  }
+        public void setReservation(Reservation res) {
+            this.res = res;
+        }
+
+        public Reservation getRes() {
+            return res;
+        }
+
 
 }
