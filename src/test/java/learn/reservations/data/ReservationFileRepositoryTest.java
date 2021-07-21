@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,7 +28,9 @@ class ReservationFileRepositoryTest {
     ReservationFileRepository repository = new ReservationFileRepository(TEST_DIR_PATH);
 
     Guest guest = new Guest(1, "Sullivan","Lomas","slomas0@mediafire.com","(702) 7768761","NV");
+    Guest guest2 = new Guest(799, "Goldy", "Bowland", "gbowlandm6@devhub.com", "(510) 1381796", "CA");
     Host host = new Host("2e72f86c-b8fe-4265-b4f1-304dea8762db","de Clerk","kdeclerkdc@sitemeter.com","(208) 9496329","2 Debra Way", "Boise", "ID", 83757, new BigDecimal("200"), new BigDecimal("250"));
+    Reservation res = new Reservation(5,LocalDate.of(2021,7,31),LocalDate.of(2021,8,2), guest2, host, new BigDecimal("450"));
 
     @BeforeEach
     void setup() throws IOException {
@@ -54,7 +57,27 @@ class ReservationFileRepositoryTest {
     }
 
     @Test
-    void edit() {
+    void edit() throws FileNotFoundException {
+        Reservation res = new Reservation(
+                5,
+                LocalDate.of(2021,7,31),
+                LocalDate.of(2021,10,2), //changed month
+                guest2,
+                host,
+                new BigDecimal("450"));
+
+        boolean actual = repository.edit(res);
+        assertTrue(actual);
+
+        List<Reservation> all = repository.findResByHostEmail(host.getEmail());
+        Month month = null;
+        for (int i = 0; i < all.size(); i++) {
+            if(all.get(i).getId() == res.getId()) {
+               month = res.getEndDate().getMonth();
+            }
+        }
+
+        assertTrue(month.equals(res.getEndDate().getMonth()));
     }
 
     @Test
