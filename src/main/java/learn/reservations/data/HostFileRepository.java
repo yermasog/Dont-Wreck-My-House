@@ -17,6 +17,7 @@ public class HostFileRepository implements HostRepository {
     public HostFileRepository (String filePath) {
         this.filePath = filePath;
     }
+
     public List<Host> findAllHosts() throws DataAccessException {
         ArrayList<Host> allHosts = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {

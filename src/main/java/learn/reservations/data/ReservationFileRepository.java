@@ -20,7 +20,7 @@ public class ReservationFileRepository implements ReservationRepository {
     }
 
     @Override
-    public List<Reservation> findResByHostEmail(Host host, Guest guest) throws DataAccessException {
+    public List<Reservation> findResByHostEmail(Host host) throws DataAccessException {
         String hostId = host.getId();
 
         ArrayList<Reservation> reservations = new ArrayList<>();
@@ -35,6 +35,8 @@ public class ReservationFileRepository implements ReservationRepository {
                 int guestId = Integer.parseInt(fields[3]);
                 BigDecimal total = new BigDecimal(fields[4]);
 
+                Guest guest = new Guest();
+                guest.setId(guestId);
 
                 Reservation reservation = new Reservation();
                 reservation.setId(id);
@@ -53,16 +55,41 @@ public class ReservationFileRepository implements ReservationRepository {
         return reservations;
     }
 
-
     @Override
     public Reservation add(Reservation res) throws DataAccessException {
-        List<Reservation> all = findResByHostEmail(res.getHost(), res.getGuest());
+        List<Reservation> all = findResByHostEmail(res.getHost());
         String hostId = res.getHost().getId();
         res.setId(all.size() + 1); //what happens when reservation is canceled? get maxId
         all.add(res);
         writeToFile(all, hostId);
 
         return res;
+    }
+
+    @Override
+    public boolean edit(Reservation res) throws DataAccessException {
+    List<Reservation> all = findResByHostEmail(res.getHost());
+        for (int i = 0; i < all.size(); i++) {
+            if(all.get(i).getId() == res.getId()) {
+                all.set(i, res);
+                writeToFile(all, res.getHost().getId());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean cancel(Reservation res) throws DataAccessException {
+        List<Reservation> all = findResByHostEmail(res.getHost());
+        for (int i = 0; i < all.size(); i++) {
+            if (all.get(i).getId() == res.getId()) {
+                all.remove(i);
+                writeToFile(all,res.getHost().getId());
+                return true;
+            }
+        }
+        return false;
     }
 
     private void writeToFile(List<Reservation> all, String hostId) throws DataAccessException {
@@ -78,32 +105,6 @@ public class ReservationFileRepository implements ReservationRepository {
         } catch (IOException ex) {
             throw new DataAccessException("Could not write to file");
         }
-    }
-
-    @Override
-    public boolean edit(Reservation res) throws DataAccessException {
-    List<Reservation> all = findResByHostEmail(res.getHost(), res.getGuest());
-        for (int i = 0; i < all.size(); i++) {
-            if(all.get(i).getId() == res.getId()) {
-                all.set(i, res);
-                writeToFile(all, res.getHost().getId());
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean cancel(Reservation res) throws DataAccessException {
-        List<Reservation> all = findResByHostEmail(res.getHost(), res.getGuest());
-        for (int i = 0; i < all.size(); i++) {
-            if (all.get(i).getId() == res.getId()) {
-                all.remove(i);
-                writeToFile(all,res.getHost().getId());
-                return true;
-            }
-        }
-        return false;
     }
 
     private LocalDate readDateString(String dateString) { //TODO create LocalDate from string

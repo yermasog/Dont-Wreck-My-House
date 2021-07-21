@@ -40,6 +40,14 @@ class ReservationFileRepositoryTest {
     }
 
     @Test
+    void findResByHostEmail() throws DataAccessException {
+        //should return 12 reservations
+        String email = "kdeclerkdc@sitemeter.com";
+        List<Reservation> reservations = repository.findResByHostEmail(res.getHost());
+        assertEquals(12, reservations.size());
+    }
+
+    @Test
     void shouldAdd() throws DataAccessException {
         Reservation res = new Reservation();
         res.setId(13);
@@ -69,7 +77,7 @@ class ReservationFileRepositoryTest {
         boolean actual = repository.edit(res);
         assertTrue(actual);
 
-        List<Reservation> all = repository.findResByHostEmail(res.getHost(), res.getGuest());
+        List<Reservation> all = repository.findResByHostEmail(res.getHost());
         Month month = null;
         for (int i = 0; i < all.size(); i++) {
             if(all.get(i).getId() == res.getId()) {
@@ -84,18 +92,12 @@ class ReservationFileRepositoryTest {
     void cancel() throws DataAccessException {
         assertTrue(repository.cancel(res));
 
-        List<Reservation> all = repository.findResByHostEmail(res.getHost(), res.getGuest());
+        List<Reservation> all = repository.findResByHostEmail(res.getHost());
         assertEquals(11, all.size());
 
         assertFalse(all.stream()
                 .anyMatch(a -> a.getId() == res.getId()));
     }
 
-    @Test
-    void findResByHostEmail() throws DataAccessException {
-        //should return 12 reservations
-        String email = "kdeclerkdc@sitemeter.com";
-        List<Reservation> reservations = repository.findResByHostEmail(res.getHost(), res.getGuest());
-        assertEquals(12, reservations.size());
-    }
+
 }

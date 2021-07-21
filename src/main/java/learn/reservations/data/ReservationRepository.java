@@ -6,7 +6,7 @@ import learn.reservations.models.Reservation;
 import java.util.List;
 
 public interface ReservationRepository {
-    List<Reservation> findResByHostEmail(Host host, Guest guest) throws DataAccessException;
+    List<Reservation> findResByHostEmail(Host host) throws DataAccessException;
 
     Reservation add(Reservation res) throws DataAccessException;
 
