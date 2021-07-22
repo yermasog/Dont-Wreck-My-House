@@ -4,6 +4,7 @@ import learn.reservations.data.DataAccessException;
 import learn.reservations.data.GuestRepository;
 import learn.reservations.data.HostRepository;
 import learn.reservations.data.ReservationRepository;
+import learn.reservations.models.Guest;
 import learn.reservations.models.Host;
 import learn.reservations.models.Reservation;
 
@@ -27,7 +28,12 @@ public class ReservationService {
     public List<Reservation> findByEmail(String email) throws DataAccessException {
         Host host = hostRepository.matchHostEmailToId(email);
 
-        return reservationRepository.findResByHostEmail(host);
+        List<Reservation> allNoGuest = reservationRepository.findResByHostEmail(host);
+        for (int i = 0; i < allNoGuest.size(); i++) {
+           Guest guest =  guestRepository.matchGuestId(allNoGuest.get(i).getGuest().getId());
+            allNoGuest.get(i).setGuest(guest);
+        }
+        return allNoGuest;
     }
 
     public Result addRes(Reservation res) throws DataAccessException {

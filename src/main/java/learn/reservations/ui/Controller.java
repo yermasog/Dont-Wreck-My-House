@@ -1,6 +1,10 @@
 package learn.reservations.ui;
 
+import learn.reservations.data.DataAccessException;
 import learn.reservations.domain.ReservationService;
+import learn.reservations.models.Reservation;
+
+import java.util.List;
 
 public class Controller {
 
@@ -15,19 +19,18 @@ public class Controller {
     public void run() {
         view.displayMessage("Main Menu");
         view.displayMessage("=========");
-
-            view.selectMenuOption();
-
-
+        try {
+            runMenuLoop();
+        } catch (DataAccessException ex){
+            view.displayMessage(ex.getMessage());
+        }
     }
 
-    public void runMenuLoop() {
+    public void runMenuLoop() throws DataAccessException {
         MainMenuOption option;
-        do{
+        do {
             option = view.selectMenuOption();
             switch (option) {
-                case EXIT:
-                    break;
                 case VIEW_RES_BY_HOST:
                     viewResByHost();
                     break;
@@ -45,19 +48,21 @@ public class Controller {
 
     }
 
-    public void viewResByHost() {
-
+    //kdeclerkdc@sitemeter.com
+    public void viewResByHost() throws DataAccessException {
+        List<Reservation>  reservations = service.findByEmail(view.promptForHostEmail());
+        view.displayList(reservations);
     }
 
     public void makeRes() {
-
+        view.displayMessage("make res");
     }
 
     public void editRes() {
-
+        view.displayMessage("edit res");
     }
 
     public void cancelRes() {
-
+        view.displayMessage("cancel res");
     }
 }

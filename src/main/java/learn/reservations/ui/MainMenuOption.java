@@ -23,12 +23,12 @@ public enum MainMenuOption {
         return message;
     }
 
-   public static MainMenuOption fromValue(int value) {
-       for (MainMenuOption option : MainMenuOption.values()) {
-           if (option.getValue() == value) {
-               return option;
-           }
-       }
-       return EXIT;
-   }
+    public static MainMenuOption fromValue(int value) {
+        for (MainMenuOption option : MainMenuOption.values()) {
+            if (option.getValue() == value) {
+                return option;
+            }
+        }
+        return EXIT;
+    }
 }
