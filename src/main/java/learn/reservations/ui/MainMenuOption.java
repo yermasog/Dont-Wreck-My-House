@@ -23,5 +23,12 @@ public enum MainMenuOption {
         return message;
     }
 
-   //TODO write method to return enum based on value
+   public static MainMenuOption fromValue(int value) {
+       for (MainMenuOption option : MainMenuOption.values()) {
+           if (option.getValue() == value) {
+               return option;
+           }
+       }
+       return EXIT;
+   }
 }
