@@ -8,5 +8,5 @@ public interface HostRepository {
 
     List<Host> findAllHosts() throws DataAccessException;
 
-    Host matchHostEmailToId(String email) throws DataAccessException;
+    Host findHostByEmail(String email) throws DataAccessException;
 }

@@ -59,7 +59,7 @@ public class HostFileRepository implements HostRepository {
         return allHosts;
     }
 
-    public Host matchHostEmailToId(String email) throws DataAccessException {
+    public Host findHostByEmail(String email) throws DataAccessException {
         List<Host> all = findAllHosts();
         Host host = new Host();
         for (int i = 0; i < all.size(); i++) {

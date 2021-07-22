@@ -1,7 +1,12 @@
 package learn.reservations.ui;
 
+import learn.reservations.models.Guest;
+import learn.reservations.models.Host;
 import learn.reservations.models.Reservation;
+import org.springframework.cglib.core.Local;
 
+import java.sql.Array;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 
@@ -37,11 +42,11 @@ public class View {
         return email;
     }
 
-    public void displayList(List<Reservation> reservations, String hostEmail) {
+    public void displayList(List<Reservation> reservations) {
         if (reservations == null || reservations.isEmpty()) {
             System.out.println("No reservations found. Please try again");
         } else {
-            System.out.println(String.format("Host Email: %s", hostEmail ));
+
             for (Reservation r :reservations) {
                 System.out.println(String.format("ID:%s, %s - %s, Guest: %s %s, Email: %s",
                         r.getId(),
@@ -54,5 +59,33 @@ public class View {
             }
         }
     }
+
+    public String[] promptEmails() {
+        String[] emailArr = new String[2];
+
+        System.out.println("Enter the guest email: ");
+        String guestEmail = console.nextLine();
+        emailArr[0] = guestEmail;
+
+        System.out.println("Enter the host email: ");
+        String hostEmail = console.nextLine();
+        emailArr[1] = hostEmail;
+
+        return emailArr;
+
+    }
+
+    public void promptMakeRes(Guest guest, Host host){
+        Reservation res = new Reservation();
+        res.setGuest(guest);
+        res.setHost(host);
+
+        System.out.println("Enter the start date in MM/DD/YYYY format:");
+
+        LocalDate day = LocalDate.parse(console.nextLine());
+        System.out.println(day);
+    }
+
+
 }
 

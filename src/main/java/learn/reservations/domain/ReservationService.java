@@ -24,9 +24,8 @@ public class ReservationService {
         this.guestRepository = guestRepository;
     }
 
-
     public List<Reservation> findByEmail(String email) throws DataAccessException {
-        Host host = hostRepository.matchHostEmailToId(email);
+        Host host = hostRepository.findHostByEmail(email);
 
         List<Reservation> allNoGuest = reservationRepository.findResByHostEmail(host);
         for (int i = 0; i < allNoGuest.size(); i++) {
