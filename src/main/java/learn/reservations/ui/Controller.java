@@ -17,13 +17,13 @@ public class Controller {
     }
 
     public void run() {
-        view.displayMessage("Main Menu");
-        view.displayMessage("=========");
+
         try {
             runMenuLoop();
         } catch (DataAccessException ex){
             view.displayMessage(ex.getMessage());
         }
+        view.displayMessage("Thank you; goodbye!");
     }
 
     public void runMenuLoop() throws DataAccessException {
@@ -50,8 +50,10 @@ public class Controller {
 
     //kdeclerkdc@sitemeter.com
     public void viewResByHost() throws DataAccessException {
-        List<Reservation>  reservations = service.findByEmail(view.promptForHostEmail());
-        view.displayList(reservations);
+        String hostEmail = view.promptForHostEmail();
+        List<Reservation>  reservations = service.findByEmail(hostEmail);
+        view.displayList(reservations, hostEmail);
+        view.enterToContinue();
     }
 
     public void makeRes() {
