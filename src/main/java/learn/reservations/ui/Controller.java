@@ -79,17 +79,17 @@ public class Controller {
         BigDecimal total;
 
         do{
-            String[] emailArr = view.promptEmails();
-            String guestEmail = emailArr[0];
-            String hostEmail = emailArr[1];
+
+            String guestEmail = view.promptEmails("guest");
+            String hostEmail = view.promptEmails("host");
             guest = guestService.findGuestByEmail(guestEmail);
             host = hostService.findHost(hostEmail);
             view.displayMessage(String.format("Guest email: %s", guestEmail ));
             view.displayMessage(String.format("Host email: %s", hostEmail));
 
             view.displayList(service.findByEmail(hostEmail));
-            start = view.promptStartDate();
-            end = view.promptEndDate();
+            start = view.promptDate("Enter the start date:");
+            end = view.promptDate("Enter the end date");
 
             total = BigDecimal.ZERO;
             total = calculateTotal(host, start, end, total);
@@ -116,9 +116,8 @@ public class Controller {
 
 //tkelbyke@diigo.com
     public void editRes() throws DataAccessException {
-        String[] emailsArr = view.promptEmails();
-        String guestEmail = emailsArr[0];
-        String hostEmail = emailsArr[1];
+        String guestEmail = view.promptEmails("guest");
+        String hostEmail = view.promptEmails("host");
 
         List<Reservation> reservations = service.findByEmail(hostEmail);
 
@@ -135,8 +134,8 @@ public class Controller {
         view.displayMessage(String.format("Start (%s)", filteredGuestRes.get(0).getStartDate()));
         view.displayMessage(String.format("End (%s)", filteredGuestRes.get(0).getEndDate()));
 
-        LocalDate start = view.promptStartDate();
-        LocalDate end = view.promptEndDate();
+        LocalDate start = view.promptDate("Enter the start date:");
+        LocalDate end = view.promptDate("Enter the end date");
 
         BigDecimal total = BigDecimal.ZERO;
         total = calculateTotal(filteredGuestRes.get(0).getHost(), start, end,total);
@@ -166,9 +165,8 @@ public class Controller {
     }
 
     public void cancelRes() throws DataAccessException {
-        String[] emailsArr = view.promptEmails();
-        String guestEmail = emailsArr[0];
-        String hostEmail = emailsArr[1];
+        String guestEmail = view.promptEmails("guest");
+        String hostEmail = view.promptEmails("host");
 
         List<Reservation> reservations = service.findByEmail(hostEmail);
 
