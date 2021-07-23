@@ -5,6 +5,7 @@ import learn.reservations.models.Host;
 import learn.reservations.models.Reservation;
 import org.springframework.cglib.core.Local;
 
+import java.math.BigDecimal;
 import java.sql.Array;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -77,24 +78,39 @@ public class View {
 
     }
 
-    public void promptDates(){
+    public LocalDate promptStartDate(){
 
         System.out.print("Enter the start date in MM/DD/YYYY format:");
         LocalDate startDate = LocalDate.parse(console.nextLine(), formatter);
+        return startDate;
 
+    }
+
+    public LocalDate promptEndDate(){
         System.out.print("Enter the end date in MM/DD/YYYY format: ");
         LocalDate endDate = LocalDate.parse(console.nextLine(), formatter);
-
-
-
+        return endDate;
     }
 
-    public int promptCancel() {
-        System.out.println("Enter the ID of the reservation you want to delete.");
-        int cancelResId = Integer.parseInt(console.nextLine());
-        return cancelResId;
+
+    public int promptForResId(String prompt) {
+        System.out.println(prompt);
+        int resId = Integer.parseInt(console.nextLine());
+        return resId;
     }
 
+    public boolean confirmMakeRes(LocalDate start, LocalDate end, BigDecimal total){
+        displayMessage("Summary:");
+        displayMessage("=======");
+        displayMessage(String.format("Start: %s", start));
+        displayMessage(String.format("End: %s", end));
+        displayMessage(String.format("Total: %s", total));
+        displayMessage("Is this okay? [y/n]: ");
+        boolean confirm = Boolean.parseBoolean(console.nextLine());
+
+        return confirm;
+
+    }
 
 }
 
