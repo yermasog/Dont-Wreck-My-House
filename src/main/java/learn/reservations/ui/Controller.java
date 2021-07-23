@@ -63,8 +63,8 @@ public class Controller {
 
     //kdeclerkdc@sitemeter.com
     public void viewResByHost() throws DataAccessException {
-        String hostEmail = view.promptForHostEmail();
-        System.out.println(String.format("Host Email: %s", hostEmail ));
+        String hostEmail = view.promptEmails("host");
+        System.out.printf("Host Email: %s%n", hostEmail );
         view.displayList(service.findByEmail(hostEmail));
         view.enterToContinue();
     }
@@ -76,7 +76,7 @@ public class Controller {
         Guest guest;
         LocalDate start;
         LocalDate end;
-        BigDecimal total;
+        BigDecimal total = BigDecimal.ZERO;
 
         do{
 
@@ -91,7 +91,6 @@ public class Controller {
             start = view.promptDate("Enter the start date:");
             end = view.promptDate("Enter the end date");
 
-            total = BigDecimal.ZERO;
             total = calculateTotal(host, start, end, total);
             confirm = view.confirmMakeRes(start, end, total);
 

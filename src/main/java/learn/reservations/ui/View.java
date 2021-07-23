@@ -41,8 +41,8 @@ public class View {
             for (Reservation r :reservations) {
                 System.out.printf("ID:%s, %s - %s, Guest: %s %s, Email: %s%n",
                         r.getId(),
-                        r.getStartDate(),
-                        r.getEndDate(),
+                        r.getStartDate().format(formatter),
+                        r.getEndDate().format(formatter),
                         r.getGuest().getFirstName(),
                         r.getGuest().getLastName(),
                         r.getGuest().getEmail()
@@ -72,8 +72,8 @@ public class View {
     public boolean confirmMakeRes(LocalDate start, LocalDate end, BigDecimal total){
         displayMessage("Summary:");
         displayMessage("=======");
-        displayMessage(String.format("Start: %s", start, formatter));
-        displayMessage(String.format("End: %s", end, formatter));
+        displayMessage(String.format("Start: %s", start));
+        displayMessage(String.format("End: %s", end));
         displayMessage(String.format("Total: %s", total));
         displayMessage("Is this okay? [y/n]: ");
 
