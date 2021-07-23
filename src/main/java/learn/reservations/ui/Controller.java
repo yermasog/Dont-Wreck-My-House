@@ -88,8 +88,8 @@ public class Controller {
             view.displayMessage(String.format("Host email: %s", hostEmail));
 
             view.displayList(service.findByEmail(hostEmail));
-            start = view.promptDate("Enter the start date:");
-            end = view.promptDate("Enter the end date");
+            start = view.promptDate("start");
+            end = view.promptDate("end");
 
             total = calculateTotal(host, start, end, total);
             confirm = view.confirmMakeRes(start, end, total);
@@ -133,8 +133,8 @@ public class Controller {
         view.displayMessage(String.format("Start (%s)", filteredGuestRes.get(0).getStartDate()));
         view.displayMessage(String.format("End (%s)", filteredGuestRes.get(0).getEndDate()));
 
-        LocalDate start = view.promptDate("Enter the start date:");
-        LocalDate end = view.promptDate("Enter the end date");
+        LocalDate start = view.promptDate("start");
+        LocalDate end = view.promptDate("end");
 
         BigDecimal total = BigDecimal.ZERO;
         total = calculateTotal(filteredGuestRes.get(0).getHost(), start, end,total);

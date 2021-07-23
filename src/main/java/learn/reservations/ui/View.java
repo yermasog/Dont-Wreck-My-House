@@ -59,7 +59,7 @@ public class View {
 
     public LocalDate promptDate(String message){
 
-        System.out.print(message);
+        System.out.printf("Enter the %s date in MM/DD/YYYY format: ", message);
         return LocalDate.parse(console.nextLine(), formatter);
     }
 
@@ -72,12 +72,19 @@ public class View {
     public boolean confirmMakeRes(LocalDate start, LocalDate end, BigDecimal total){
         displayMessage("Summary:");
         displayMessage("=======");
-        displayMessage(String.format("Start: %s", start));
-        displayMessage(String.format("End: %s", end));
+        displayMessage(String.format("Start: %s", start.format(formatter)));
+        displayMessage(String.format("End: %s", end.format(formatter)));
         displayMessage(String.format("Total: %s", total));
-        displayMessage("Is this okay? [y/n]: ");
 
-        return Boolean.parseBoolean(console.nextLine());
+        String confirm;
+        do{
+            displayMessage("Is this okay? [y/n]: ");
+            confirm = console.nextLine();
+        }while (!(confirm.equals("y") || confirm.equals("n")));
+
+        if(confirm.equals("y")){
+            return true;
+        } return false;
     }
 
 }
