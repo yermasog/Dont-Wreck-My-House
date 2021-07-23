@@ -34,7 +34,7 @@ public class View {
     }
 
     public void displayList(List<Reservation> reservations) {
-        if (reservations == null || reservations.isEmpty()) {
+        if (reservations.isEmpty()) {
             System.out.println("No reservations found. Please try again");
         } else {
 
@@ -69,13 +69,16 @@ public class View {
         return Integer.parseInt(console.nextLine());
     }
 
-    public boolean confirmMakeRes(LocalDate start, LocalDate end, BigDecimal total){
+    public void displaySummary(LocalDate start, LocalDate end, BigDecimal total){
         displayMessage("Summary:");
         displayMessage("=======");
         displayMessage(String.format("Start: %s", start.format(formatter)));
         displayMessage(String.format("End: %s", end.format(formatter)));
         displayMessage(String.format("Total: %s", total));
 
+    }
+
+    public boolean confirmRes() {
         String confirm;
         do{
             displayMessage("Is this okay? [y/n]: ");
@@ -84,7 +87,8 @@ public class View {
 
         if(confirm.equals("y")){
             return true;
-        } return false;
+        }
+        return false;
     }
 
 }

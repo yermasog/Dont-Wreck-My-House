@@ -135,7 +135,7 @@ class ReservationServiceTest {
     //TODO shouldNotUpdateNotExisting()
 
     @Test
-        void shouldCancel() throws DataAccessException {
+    void shouldCancel() throws DataAccessException {
     Reservation res = new Reservation(1, LocalDate.of(2021,11,20),
             LocalDate.of(2021,12,2), guest, host, new BigDecimal("450"));
 
@@ -145,6 +145,9 @@ class ReservationServiceTest {
             assertEquals(0, actual.getMessages().size());
         }
 
-    //TODO shouldNotCancelPastDate()
+    @Test
+    void shouldNotCancelNotExisting() {
+
+    }
 
 }

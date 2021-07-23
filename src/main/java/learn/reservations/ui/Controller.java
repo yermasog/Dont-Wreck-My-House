@@ -92,7 +92,8 @@ public class Controller {
             end = view.promptDate("end");
 
             total = calculateTotal(host, start, end, total);
-            confirm = view.confirmMakeRes(start, end, total);
+            view.displaySummary(start, end, total);
+            confirm = view.confirmRes();
 
         } while (!confirm);
 
@@ -115,16 +116,7 @@ public class Controller {
 
 //tkelbyke@diigo.com
     public void editRes() throws DataAccessException {
-        String guestEmail = view.promptEmails("guest");
-        String hostEmail = view.promptEmails("host");
-
-        List<Reservation> reservations = service.findByEmail(hostEmail);
-
-        List<Reservation> filteredGuestRes = reservations.stream()
-                .filter(res -> res.getGuest().getEmail().equals(guestEmail))
-                .collect(Collectors.toList());
-
-
+        List<Reservation> filteredGuestRes = getFilteredGuestRes();
         view.displayList(filteredGuestRes);
         int editResId = view.promptForResId("Enter the Id of the reservation you want to edit.");
 
@@ -139,7 +131,7 @@ public class Controller {
         BigDecimal total = BigDecimal.ZERO;
         total = calculateTotal(filteredGuestRes.get(0).getHost(), start, end,total);
 
-        view.confirmMakeRes(start, end, total);
+        view.displaySummary(start, end, total);
 
         Reservation res = new Reservation();
         res.setId(editResId);
@@ -162,33 +154,39 @@ public class Controller {
         }
 
     }
-
+//    dbrownhillcr@narod.ru
     public void cancelRes() throws DataAccessException {
-        String guestEmail = view.promptEmails("guest");
-        String hostEmail = view.promptEmails("host");
+        List<Reservation> filteredGuestRes;
+        do {
+            filteredGuestRes = getFilteredGuestRes();
+            view.displayList(filteredGuestRes);
+        } while (filteredGuestRes.isEmpty());
 
-        List<Reservation> reservations = service.findByEmail(hostEmail);
-
-        List<Reservation> filteredGuestRes = reservations.stream()
-                .filter(res -> res.getGuest().getEmail().equals(guestEmail))
-                .collect(Collectors.toList());
-
-        view.displayList(filteredGuestRes);
         int cancelResId = view.promptForResId("Enter the ID of the reservation you want to delete.");
 
-        Result result = null;
+        Result result = new Result();
         for (Reservation guest : filteredGuestRes) {
             if (guest.getId() == cancelResId) {
                 result = service.cancelRes(guest);
             }
         }
+
         if(result.isSuccess()){
             view.displayMessage("Reservation successfully canceled.");
         } else {
             view.displayMessage(result.getMessages().get(0));
         }
-        
+    }
 
+    private List<Reservation> getFilteredGuestRes() throws DataAccessException {
+        String guestEmail = view.promptEmails("guest");
+        String hostEmail = view.promptEmails("host");
+
+        List<Reservation> reservations = service.findByEmail(hostEmail);
+
+        return reservations.stream()
+                .filter(res -> res.getGuest().getEmail().equals(guestEmail))
+                .collect(Collectors.toList());
     }
 
     private BigDecimal calculateTotal(Host host, LocalDate start, LocalDate end, BigDecimal total) {
@@ -202,6 +200,4 @@ public class Controller {
         }
         return total;
     }
-
-
 }
