@@ -7,12 +7,14 @@ import org.springframework.cglib.core.Local;
 
 import java.sql.Array;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
 public class View {
 
     private Scanner console = new Scanner(System.in);
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     public MainMenuOption selectMenuOption() {
         System.out.println("Main Menu");
@@ -75,15 +77,22 @@ public class View {
 
     }
 
-    public void promptMakeRes(Guest guest, Host host){
-        Reservation res = new Reservation();
-        res.setGuest(guest);
-        res.setHost(host);
+    public void promptDates(){
 
-        System.out.println("Enter the start date in MM/DD/YYYY format:");
+        System.out.print("Enter the start date in MM/DD/YYYY format:");
+        LocalDate startDate = LocalDate.parse(console.nextLine(), formatter);
 
-        LocalDate day = LocalDate.parse(console.nextLine());
-        System.out.println(day);
+        System.out.print("Enter the end date in MM/DD/YYYY format: ");
+        LocalDate endDate = LocalDate.parse(console.nextLine(), formatter);
+
+
+
+    }
+
+    public int promptCancel() {
+        System.out.println("Enter the ID of the reservation you want to delete.");
+        int cancelResId = Integer.parseInt(console.nextLine());
+        return cancelResId;
     }
 
 

@@ -9,6 +9,8 @@ import learn.reservations.models.Host;
 import learn.reservations.models.Reservation;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Controller {
 
@@ -59,9 +61,8 @@ public class Controller {
     //kdeclerkdc@sitemeter.com
     public void viewResByHost() throws DataAccessException {
         String hostEmail = view.promptForHostEmail();
-        List<Reservation>  reservations = service.findByEmail(hostEmail);
         System.out.println(String.format("Host Email: %s", hostEmail ));
-        view.displayList(reservations);
+        view.displayList(service.findByEmail(hostEmail));
         view.enterToContinue();
     }
 
@@ -76,7 +77,9 @@ public class Controller {
         view.displayMessage(String.format("Host email: %s", hostEmail));
 
         view.displayList(service.findByEmail(hostEmail));
-        view.promptMakeRes(guest, host);
+        view.promptDates();
+
+        view.enterToContinue();
 
     }
 
@@ -84,7 +87,27 @@ public class Controller {
         view.displayMessage("edit res");
     }
 
-    public void cancelRes() {
-        view.displayMessage("cancel res");
+    public void cancelRes() throws DataAccessException {
+        String[] emailsArr = view.promptEmails();
+        String guestEmail = emailsArr[0];
+        String hostEmail = emailsArr[1];
+
+        List<Reservation> reservations = service.findByEmail(hostEmail);
+
+        List<Reservation> filteredGuestRes = reservations.stream()
+                .filter(res -> res.getGuest().getEmail().equals(guestEmail))
+                .collect(Collectors.toList());
+
+        view.displayList(filteredGuestRes);
+        int cancelResId = view.promptCancel();
+
+        for (int i = 0; i < filteredGuestRes.size(); i++) {
+            if(filteredGuestRes.get(i).getId() == cancelResId) {
+                service.cancelRes(filteredGuestRes.get(i));
+            }
+        }
+
+        view.displayMessage(String.format("Reservation Id: %s was successfully deleted", cancelResId));
+
     }
 }
