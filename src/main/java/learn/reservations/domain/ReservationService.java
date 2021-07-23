@@ -133,7 +133,8 @@ public class ReservationService {
         List<Reservation> all = findByEmail(res.getHost().getEmail());
 
         for(Reservation r : all) {
-            if(!(res.getStartDate().isAfter(r.getEndDate())
+            if( !(res.getId() == r.getId())
+                   && !(res.getStartDate().isAfter(r.getEndDate())
                     || res.getStartDate().isEqual(r.getEndDate()))
 
             && !(res.getEndDate().isBefore(r.getStartDate()) ||

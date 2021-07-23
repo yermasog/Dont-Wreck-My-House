@@ -114,7 +114,7 @@ public class Controller {
         view.enterToContinue();
     }
 
-
+//tkelbyke@diigo.com
     public void editRes() throws DataAccessException {
         String[] emailsArr = view.promptEmails();
         String guestEmail = emailsArr[0];
@@ -130,6 +130,38 @@ public class Controller {
         view.displayList(filteredGuestRes);
         int editResId = view.promptForResId("Enter the Id of the reservation you want to edit.");
 
+        view.displayMessage(String.format("Editing Reservation %s", editResId));
+        view.displayMessage("======================");
+        view.displayMessage(String.format("Start (%s)", filteredGuestRes.get(0).getStartDate()));
+        view.displayMessage(String.format("End (%s)", filteredGuestRes.get(0).getEndDate()));
+
+        LocalDate start = view.promptStartDate();
+        LocalDate end = view.promptEndDate();
+
+        BigDecimal total = BigDecimal.ZERO;
+        total = calculateTotal(filteredGuestRes.get(0).getHost(), start, end,total);
+
+        view.confirmMakeRes(start, end, total);
+
+        Reservation res = new Reservation();
+        res.setId(editResId);
+        res.setHost(filteredGuestRes.get(0).getHost());
+        res.setGuest(filteredGuestRes.get(0).getGuest());
+        res.setStartDate(start);
+        res.setEndDate(end);
+        res.setTotal(total);
+
+        Result result = null;
+        for (Reservation guest : filteredGuestRes) {
+            if (guest.getId() == editResId) {
+                result = service.editRes(res);
+            }
+        }
+        if(result.isSuccess()){
+            view.displayMessage("Reservation has been updated.");
+        } else {
+            view.displayMessage(result.getMessages().get(0));
+        }
 
     }
 
