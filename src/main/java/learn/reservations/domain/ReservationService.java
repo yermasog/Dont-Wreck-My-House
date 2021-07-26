@@ -7,10 +7,13 @@ import learn.reservations.data.ReservationRepository;
 import learn.reservations.models.Guest;
 import learn.reservations.models.Host;
 import learn.reservations.models.Reservation;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 
+
+@Service
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;

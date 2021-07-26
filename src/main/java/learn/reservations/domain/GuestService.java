@@ -3,7 +3,10 @@ package learn.reservations.domain;
 import learn.reservations.data.DataAccessException;
 import learn.reservations.data.GuestRepository;
 import learn.reservations.models.Guest;
+import org.springframework.stereotype.Service;
 
+
+@Service
 public class GuestService {
 
     private final GuestRepository guestRepository;

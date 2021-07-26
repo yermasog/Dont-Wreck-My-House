@@ -8,6 +8,7 @@ import learn.reservations.domain.Result;
 import learn.reservations.models.Guest;
 import learn.reservations.models.Host;
 import learn.reservations.models.Reservation;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
@@ -16,6 +17,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+@Component
 public class Controller {
 
     private final ReservationService service;

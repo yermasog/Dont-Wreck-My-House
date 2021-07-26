@@ -2,12 +2,16 @@ package learn.reservations.ui;
 
 import learn.reservations.data.DataAccessException;
 import learn.reservations.models.Reservation;
+import org.springframework.stereotype.Component;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
+
+@Component
 public class View {
 
     private final Scanner console = new Scanner(System.in);
