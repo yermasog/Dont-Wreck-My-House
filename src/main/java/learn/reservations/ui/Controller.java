@@ -12,6 +12,7 @@ import learn.reservations.models.Reservation;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,11 +34,12 @@ public class Controller {
 
         try {
             runMenuLoop();
-        } catch (DataAccessException ex){
+        } catch (DataAccessException ex) {
             view.displayMessage(ex.getMessage());
         }
         view.displayMessage("Thank you; goodbye!");
     }
+
 
     public void runMenuLoop() throws DataAccessException {
         MainMenuOption option;
@@ -64,7 +66,11 @@ public class Controller {
     //kdeclerkdc@sitemeter.com
     public void viewResByHost() throws DataAccessException {
         String hostEmail = view.promptEmails("host");
-        System.out.printf("Host Email: %s%n", hostEmail );
+        view.displayMessage("View Reservations for Host");
+        view.displayMessage("==========================");
+        System.out.printf("Host Email: %s%n", hostEmail);
+       Host host = hostService.findHost(hostEmail);
+        System.out.printf("%s, %s%n",host.getCity(), host.getState());
         view.displayList(service.findByEmail(hostEmail));
         view.enterToContinue();
     }
@@ -74,22 +80,22 @@ public class Controller {
         boolean confirm;
         Host host;
         Guest guest;
-        LocalDate start;
-        LocalDate end;
+        LocalDate start = null;
+        LocalDate end = null;
         BigDecimal total = BigDecimal.ZERO;
 
-        do{
-
+        do {
             String guestEmail = view.promptEmails("guest");
             String hostEmail = view.promptEmails("host");
             guest = guestService.findGuestByEmail(guestEmail);
             host = hostService.findHost(hostEmail);
-            view.displayMessage(String.format("Guest email: %s", guestEmail ));
+            view.displayMessage(String.format("Guest email: %s", guestEmail));
             view.displayMessage(String.format("Host email: %s", hostEmail));
+            System.out.printf("%s, %s%n",host.getCity(), host.getState());
 
             view.displayList(service.findByEmail(hostEmail));
-            start = view.promptDate("start");
-            end = view.promptDate("end");
+            start = runCheckDate("start");
+            end = runCheckDate("end");
 
             total = calculateTotal(host, start, end, total);
             view.displaySummary(start, end, total);
@@ -104,46 +110,52 @@ public class Controller {
         res.setEndDate(end);
         res.setTotal(total);
 
-        Result result = service.addRes(res);
-        if(result.isSuccess()){
-            view.displayMessage("Reservation successfully added!");
-        } else {
-            view.displayMessage(result.getMessages().get(0));
-        }
+        returnResult(res, "Reservation successfully added!");
 
         view.enterToContinue();
     }
 
-//tkelbyke@diigo.com
+    //tkelbyke@diigo.com
     public void editRes() throws DataAccessException {
-        List<Reservation> filteredGuestRes = getFilteredGuestRes();
-        view.displayList(filteredGuestRes);
-        int editResId = view.promptForResId("Enter the Id of the reservation you want to edit.");
+        List<Reservation> reservations = checkForReservations();
+        int editResId;
+        boolean existingRes;
+        LocalDate start;
+        LocalDate end;
+        BigDecimal total = BigDecimal.ZERO;
+
+        do{
+            editResId = view.promptForResId("Enter the Id of the reservation you want to edit.");
+            int finalEditResId = editResId;
+            existingRes = reservations.stream().anyMatch(r -> r.getId() == finalEditResId);
+        }while(!existingRes);
 
         view.displayMessage(String.format("Editing Reservation %s", editResId));
         view.displayMessage("======================");
-        view.displayMessage(String.format("Start (%s)", filteredGuestRes.get(0).getStartDate()));
-        view.displayMessage(String.format("End (%s)", filteredGuestRes.get(0).getEndDate()));
 
-        LocalDate start = view.promptDate("start");
-        LocalDate end = view.promptDate("end");
+        boolean confirm;
+        do{
+           start = runCheckDate("start");
+           end = runCheckDate("end");
 
-        BigDecimal total = BigDecimal.ZERO;
-        total = calculateTotal(filteredGuestRes.get(0).getHost(), start, end,total);
+            total = calculateTotal(reservations.get(0).getHost(), start, end,total);
 
-        view.displaySummary(start, end, total);
+            view.displaySummary(start, end, total);
+            confirm = view.confirmRes();
+        }while(!confirm);
+
 
         Reservation res = new Reservation();
         res.setId(editResId);
-        res.setHost(filteredGuestRes.get(0).getHost());
-        res.setGuest(filteredGuestRes.get(0).getGuest());
+        res.setHost(reservations.get(0).getHost());
+        res.setGuest(reservations.get(0).getGuest());
         res.setStartDate(start);
         res.setEndDate(end);
         res.setTotal(total);
 
         Result result = null;
-        for (Reservation guest : filteredGuestRes) {
-            if (guest.getId() == editResId) {
+        for (Reservation r : reservations) {
+            if (r.getId() == editResId) {
                 result = service.editRes(res);
             }
         }
@@ -154,44 +166,59 @@ public class Controller {
         }
 
     }
-//    dbrownhillcr@narod.ru
-    public void cancelRes() throws DataAccessException {
-        List<Reservation> filteredGuestRes;
-        do {
-            filteredGuestRes = getFilteredGuestRes();
-            view.displayList(filteredGuestRes);
-        } while (filteredGuestRes.isEmpty());
 
+    public void cancelRes() throws DataAccessException {
+        List<Reservation> reservations = futureReservations();
         int cancelResId = view.promptForResId("Enter the ID of the reservation you want to delete.");
 
         Result result = new Result();
-        for (Reservation guest : filteredGuestRes) {
-            if (guest.getId() == cancelResId) {
-                result = service.cancelRes(guest);
+        for (Reservation r : reservations) {
+            if (r.getId() == cancelResId) {
+                result = service.cancelRes(r);
+            } else {
+                result.addMessage("Reservation not found, please try again. ");
             }
         }
 
-        if(result.isSuccess()){
+        if (result.isSuccess()) {
             view.displayMessage("Reservation successfully canceled.");
         } else {
             view.displayMessage(result.getMessages().get(0));
         }
+
+        view.enterToContinue();
     }
 
-    private List<Reservation> getFilteredGuestRes() throws DataAccessException {
-        String guestEmail = view.promptEmails("guest");
+    private List<Reservation> checkForReservations() throws DataAccessException {
         String hostEmail = view.promptEmails("host");
+        List<Reservation> reservations;
+        do {
+            reservations = service.findByEmail(hostEmail);
+            view.displayList(reservations);
+        } while (reservations.isEmpty());
 
-        List<Reservation> reservations = service.findByEmail(hostEmail);
+        return reservations;
+    }
 
-        return reservations.stream()
-                .filter(res -> res.getGuest().getEmail().equals(guestEmail))
-                .collect(Collectors.toList());
+    private List<Reservation> futureReservations() throws DataAccessException {
+        String hostEmail = view.promptEmails("host");
+        List<Reservation> reservations;
+        List<Reservation> futureReservations;
+        do {
+            reservations = service.findByEmail(hostEmail);
+            futureReservations = reservations.stream()
+                    .filter(r -> r.getStartDate().isAfter(LocalDate.now()))
+                    .sorted(Comparator.comparing(reservation -> reservation.getStartDate()))
+                    .collect(Collectors.toList());
+            view.displayList(futureReservations);
+        } while (reservations.isEmpty());
+
+        return futureReservations;
     }
 
     private BigDecimal calculateTotal(Host host, LocalDate start, LocalDate end, BigDecimal total) {
-        for(LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)){
-            if(date.getDayOfWeek().equals(DayOfWeek.SATURDAY)
+        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+            if (date.getDayOfWeek().equals(DayOfWeek.SATURDAY)
                     || date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
                 total = total.add(host.getWeekendRate());
             } else {
@@ -199,5 +226,34 @@ public class Controller {
             }
         }
         return total;
+    }
+
+    private LocalDate runCheckDate(String message) {
+        LocalDate date = null;
+        do {
+            try {
+                date = checkDateFormat(message);
+                return date;
+            } catch (DataAccessException ex) {
+                view.displayMessage(ex.getMessage());
+            }
+        } while (date == null);
+
+        return null;
+    }
+
+    private LocalDate checkDateFormat(String message) throws DataAccessException {
+        LocalDate date = view.promptDate(message);
+        return date;
+
+    }
+
+    private void returnResult(Reservation res, String message) throws DataAccessException {
+        Result result = service.addRes(res);
+        if (result.isSuccess()) {
+            view.displayMessage(message);
+        } else {
+            view.displayMessage(result.getMessages().get(0));
+        }
     }
 }

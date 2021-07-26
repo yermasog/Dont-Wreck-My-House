@@ -50,7 +50,7 @@ public class ReservationFileRepository implements ReservationRepository {
             }
 
         } catch (IOException ex) {
-            throw new DataAccessException("Cannot access file");
+            throw new DataAccessException("Cannot find or access file");
         }
         return reservations;
     }
@@ -69,10 +69,11 @@ public class ReservationFileRepository implements ReservationRepository {
     @Override
     public boolean edit(Reservation res) throws DataAccessException {
     List<Reservation> all = findResByHostEmail(res.getHost());
+
         for (int i = 0; i < all.size(); i++) {
-            if(all.get(i).getId() == res.getId()) {
-                all.set(i, res);
-                writeToFile(all, res.getHost().getId());
+            if(all.get(i).getId() == res.getId()){
+                all.set(i,res);
+                writeToFile(all,res.getHost().getId());
                 return true;
             }
         }
@@ -82,6 +83,7 @@ public class ReservationFileRepository implements ReservationRepository {
     @Override
     public boolean cancel(Reservation res) throws DataAccessException {
         List<Reservation> all = findResByHostEmail(res.getHost());
+
         for (int i = 0; i < all.size(); i++) {
             if (all.get(i).getId() == res.getId()) {
                 all.remove(i);

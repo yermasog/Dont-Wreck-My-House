@@ -27,12 +27,12 @@ public class ReservationService {
     public List<Reservation> findByEmail(String email) throws DataAccessException {
         Host host = hostRepository.findHostByEmail(email);
 
-        List<Reservation> allNoGuest = reservationRepository.findResByHostEmail(host);
-        for (int i = 0; i < allNoGuest.size(); i++) {
-           Guest guest =  guestRepository.matchGuestId(allNoGuest.get(i).getGuest().getId());
-            allNoGuest.get(i).setGuest(guest);
+        List<Reservation> resByHostEmail = reservationRepository.findResByHostEmail(host);
+        for (int i = 0; i < resByHostEmail.size(); i++) {
+           Guest guest =  guestRepository.matchGuestId(resByHostEmail.get(i).getGuest().getId());
+            resByHostEmail.get(i).setGuest(guest);
         }
-        return allNoGuest;
+        return resByHostEmail;
     }
 
     public Result addRes(Reservation res) throws DataAccessException {
@@ -47,6 +47,7 @@ public class ReservationService {
     }
 
     public Result editRes(Reservation res) throws DataAccessException {
+
         Result result = validate(res);
         if (!result.isSuccess()) {
             return result;
@@ -100,10 +101,10 @@ public class ReservationService {
             result.addMessage("Reservation is required.");
         }
         if (res.getHost().getId() == null) {
-            result.addMessage("Host Id is required.");
+            result.addMessage("Cannot find host Id.");
         }
         if (res.getGuest().getId() == 0) {
-            result.addMessage("Guest Id is required.");
+            result.addMessage("Cannot find guest Id.");
         }
         if (res.getTotal() == null) {
             result.addMessage("Total is required.");
@@ -117,6 +118,8 @@ public class ReservationService {
     }
 
     private void validateDates(Reservation res, Result result) {
+
+
 
         //local dates are in the future
         if(res.getStartDate().isBefore(LocalDate.now())) {

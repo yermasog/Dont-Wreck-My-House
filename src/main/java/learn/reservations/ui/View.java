@@ -1,5 +1,6 @@
 package learn.reservations.ui;
 
+import learn.reservations.data.DataAccessException;
 import learn.reservations.models.Reservation;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -57,10 +58,16 @@ public class View {
         return console.nextLine();
     }
 
-    public LocalDate promptDate(String message){
+    public LocalDate promptDate(String message) throws DataAccessException {
 
         System.out.printf("Enter the %s date in MM/DD/YYYY format: ", message);
-        return LocalDate.parse(console.nextLine(), formatter);
+//        return LocalDate.parse(console.nextLine(), formatter);
+       try{LocalDate date = LocalDate.parse(console.nextLine(), formatter);
+           return date;
+       } catch (Exception ex) {
+           throw new DataAccessException("Invalid date. Please enter date in MM/DD/YYYY format.");
+       }
+
     }
 
 
@@ -74,7 +81,7 @@ public class View {
         displayMessage("=======");
         displayMessage(String.format("Start: %s", start.format(formatter)));
         displayMessage(String.format("End: %s", end.format(formatter)));
-        displayMessage(String.format("Total: %s", total));
+        displayMessage(String.format("Total: $%s", total));
 
     }
 
