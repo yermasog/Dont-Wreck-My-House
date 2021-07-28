@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class ReservationFileRepository implements ReservationRepository {
 
     private static final String HEADER = "id,start_date,end_date,guest_id,total";
     private final String directory;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public ReservationFileRepository(@Value("${reservationsDirPath}")String directory) {
         this.directory = directory;
@@ -34,8 +36,8 @@ public class ReservationFileRepository implements ReservationRepository {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 String[] fields = line.split(",", -1);
                 int id = Integer.parseInt(fields[0]);
-                LocalDate startDate = readDateString(fields[1]);
-                LocalDate endDate = readDateString(fields[2]);
+                LocalDate startDate = LocalDate.parse(fields[1],formatter);
+                LocalDate endDate = LocalDate.parse(fields[2], formatter);
                 int guestId = Integer.parseInt(fields[3]);
                 BigDecimal total = new BigDecimal(fields[4]);
 
@@ -111,14 +113,6 @@ public class ReservationFileRepository implements ReservationRepository {
         } catch (IOException ex) {
             throw new DataAccessException("Could not write to file");
         }
-    }
-
-    private LocalDate readDateString(String dateString) { //TODO create LocalDate from string
-        String[] fields = dateString.split("-", 3);
-        int year = Integer.parseInt(fields[0]);
-        int month = Integer.parseInt(fields[1]);
-        int day = Integer.parseInt(fields[2]);
-        return LocalDate.of(year, month, day);
     }
 
     private int getMaxId(List<Reservation> all) {
