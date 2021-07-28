@@ -113,7 +113,7 @@ public class Controller {
         res.setEndDate(end);
         res.setTotal(total);
 
-        returnResult(res, "Reservation successfully added!");
+        returnResult(res);
 
         view.enterToContinue();
     }
@@ -156,12 +156,8 @@ public class Controller {
         res.setEndDate(end);
         res.setTotal(total);
 
-        Result result = null;
-        for (Reservation r : reservations) {
-            if (r.getId() == editResId) {
-                result = service.editRes(res);
-            }
-        }
+        Result result = service.editRes(res);
+
         if(result.isSuccess()){
             view.displayMessage("Reservation has been updated.");
         } else {
@@ -211,7 +207,7 @@ public class Controller {
             reservations = service.findByEmail(hostEmail);
             futureReservations = reservations.stream()
                     .filter(r -> r.getStartDate().isAfter(LocalDate.now()))
-                    .sorted(Comparator.comparing(reservation -> reservation.getStartDate()))
+                    .sorted(Comparator.comparing(Reservation::getStartDate))
                     .collect(Collectors.toList());
             view.displayList(futureReservations);
         } while (reservations.isEmpty());
@@ -220,7 +216,7 @@ public class Controller {
     }
 
     private BigDecimal calculateTotal(Host host, LocalDate start, LocalDate end, BigDecimal total) {
-        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+        for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
             if (date.getDayOfWeek().equals(DayOfWeek.SATURDAY)
                     || date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
                 total = total.add(host.getWeekendRate());
@@ -246,15 +242,14 @@ public class Controller {
     }
 
     private LocalDate checkDateFormat(String message) throws DataAccessException {
-        LocalDate date = view.promptDate(message);
-        return date;
+        return view.promptDate(message);
 
     }
 
-    private void returnResult(Reservation res, String message) throws DataAccessException {
+    private void returnResult(Reservation res) throws DataAccessException {
         Result result = service.addRes(res);
         if (result.isSuccess()) {
-            view.displayMessage(message);
+            view.displayMessage("Reservation successfully added!");
         } else {
             view.displayMessage(result.getMessages().get(0));
         }
