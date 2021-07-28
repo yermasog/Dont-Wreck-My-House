@@ -20,12 +20,22 @@ public class View {
     public MainMenuOption selectMenuOption() {
         System.out.println("Main Menu");
         System.out.println("=========");
-        for (MainMenuOption option : MainMenuOption.values()){
+        for (MainMenuOption option : MainMenuOption.values()) {
             System.out.printf("%s. %s%n", option.getValue(), option.getMessage());
         }
         System.out.println("Select [0-4]");
-        int numberOption = Integer.parseInt(console.nextLine());
+        int numberOption = readInt();
         return MainMenuOption.fromValue(numberOption);
+    }
+
+    private int readInt() {
+        while (true)
+            try {
+                return Integer.parseInt(console.nextLine());
+            } catch (NumberFormatException ex) {
+                System.out.println("Invalid number; please select [0-4]");
+            }
+
     }
 
     public void displayMessage(String message) {
@@ -43,7 +53,7 @@ public class View {
             System.out.println("No reservations found. Please try again");
         } else {
 
-            for (Reservation r :reservations) {
+            for (Reservation r : reservations) {
                 System.out.printf("ID:%s, %s - %s, Guest: %s %s, Email: %s%n",
                         r.getId(),
                         r.getStartDate().format(formatter),
@@ -66,11 +76,12 @@ public class View {
 
         System.out.printf("Enter the %s date in MM/DD/YYYY format: ", message);
 //        return LocalDate.parse(console.nextLine(), formatter);
-       try{LocalDate date = LocalDate.parse(console.nextLine(), formatter);
-           return date;
-       } catch (Exception ex) {
-           throw new DataAccessException("Invalid date. Please enter date in MM/DD/YYYY format.");
-       }
+        try {
+            LocalDate date = LocalDate.parse(console.nextLine(), formatter);
+            return date;
+        } catch (Exception ex) {
+            throw new DataAccessException("Invalid date. Please enter date in MM/DD/YYYY format.");
+        }
 
     }
 
@@ -80,7 +91,7 @@ public class View {
         return Integer.parseInt(console.nextLine());
     }
 
-    public void displaySummary(LocalDate start, LocalDate end, BigDecimal total){
+    public void displaySummary(LocalDate start, LocalDate end, BigDecimal total) {
         displayMessage("Summary:");
         displayMessage("=======");
         displayMessage(String.format("Start: %s", start.format(formatter)));
@@ -91,12 +102,12 @@ public class View {
 
     public boolean confirmRes() {
         String confirm;
-        do{
+        do {
             displayMessage("Is this okay? [y/n]: ");
             confirm = console.nextLine();
-        }while (!(confirm.equals("y") || confirm.equals("n")));
+        } while (!(confirm.equals("y") || confirm.equals("n")));
 
-        if(confirm.equals("y")){
+        if (confirm.equals("y")) {
             return true;
         }
         return false;
